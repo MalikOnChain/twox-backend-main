@@ -1,0 +1,7 @@
+{
+  "watch": ["src", ".env"],
+  "ignore": ["src/tests/**"],
+  "ext": "js",
+  "exec": "tsx src/index.js",
+  "legacyWatch": true
+}

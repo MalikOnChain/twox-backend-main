@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run commitlint to validate the commit message
+npx commitlint --edit $1
+
+# Check the exit status of commitlint
+if [ $? -ne 0 ]; then
+  echo "❌ Commit message validation failed. Please fix the issues and try again."
+  exit 1
+fi
+
+echo "✅ Commit message validation passed."
+exit 0

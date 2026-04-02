@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "allowJs": true,
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/services/*": ["src/services/*"],
+      "@/models/*": ["src/models/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/routes/*": ["src/routes/*"],
+      "@/controllers/*": ["src/controllers/*"],
+      "@/config/*": ["src/config/*"],
+      "@/middlewares/*": ["src/middlewares/*"]
+    }
+  },
+  "include": ["src/**/*", "src/types/global.d.ts", "src/types/IBanner.ts"],
+  "exclude": ["dist", "node_modules"]
+}

@@ -1,0 +1,11 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Check if eslint is installed
+if ! npm list eslint --depth=0 >/dev/null 2>&1; then
+  echo "Error: eslint is not installed. Please run \`npm install\`."
+  exit 1
+fi
+
+# Run lint-staged
+npx lint-staged
