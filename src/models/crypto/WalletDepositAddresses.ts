@@ -187,7 +187,13 @@ const createDepositAddressMiddleware = async function (this: any, next: (error?:
         console.error(err);
         return next(err);
       }
-      throw err;
+      // Custody (e.g. Fystack) may be misconfigured or down; allow signup so users can still register.
+      // Deposit rows can be created later when custody works or via lazy provisioning on deposit flows.
+      logger.warn(
+        '[WalletDepositAddresses] Signup continued with zero deposit addresses; custody provisioning failed for all chains',
+        { userId: String(this._id) }
+      );
+      return next();
     }
 
     next();
