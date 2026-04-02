@@ -1,5 +1,5 @@
 {
-  "watch": ["src", ".env"],
+  "watch": ["src", ".env", "local.env"],
   "ignore": ["src/tests/**"],
   "ext": "js",
   "exec": "tsx src/index.js",
