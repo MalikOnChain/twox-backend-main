@@ -2,6 +2,11 @@
 import './load-env.ts';
 import './global-variable';
 
+const corsExtraOrigins = (process.env.CORS_ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
@@ -10,12 +15,27 @@ const allowedOrigins = [
   'http://127.0.0.1:3000',
   'http://127.0.0.1:9000',
   process.env.FRONTEND_URL,
+  process.env.ADMIN_PANEL_FRONTEND_URL,
   'https://twox.gg',
   'https://www.twox.gg',
   'https://tuabet.bet',
   'https://staging.tuabet.bet',
   'https://api.admin.tuabet.bet',
+  ...corsExtraOrigins,
 ].filter(Boolean); // Remove undefined values
+
+function isVercelAppOrigin(origin: string): boolean {
+  try {
+    const u = new URL(origin);
+    return u.protocol === 'https:' && u.hostname.endsWith('.vercel.app');
+  } catch {
+    return false;
+  }
+}
+
+const allowVercelPreviewCors =
+  process.env.ALLOW_VERCEL_PREVIEW_CORS === '1' ||
+  process.env.ALLOW_VERCEL_PREVIEW_CORS === 'true';
 
 const config = {
   testMode: true,
@@ -25,16 +45,20 @@ const config = {
       if (!origin) {
         return callback(null, true);
       }
-      
+
       // Check if origin is in allowed list
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      
+
+      if (allowVercelPreviewCors && isVercelAppOrigin(origin)) {
+        return callback(null, true);
+      }
+
       // Log for debugging
       console.log('CORS blocked origin:', origin);
       console.log('Allowed origins:', allowedOrigins);
-      
+
       callback(new Error('Not allowed by CORS')); // Reject the origin
     },
     exposedHeaders: ['x-auth-token', 'x-test-mode', 'x-referral-code', 'x-utm-campaign', 'x-signature'],

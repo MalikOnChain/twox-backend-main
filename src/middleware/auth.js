@@ -69,9 +69,11 @@ export const validateJWT = async (req, res, next) => {
 
         // Return the new access token in response headers
         res.setHeader('x-auth-token', newAccessToken);
+        const isProd = process.env.NODE_ENV === 'production';
         res.cookie('refreshToken', newRefreshToken, {
           httpOnly: true, // Prevent JavaScript access
-          secure: process.env.NODE_ENV === 'production', // Use HTTPS in production
+          secure: isProd,
+          sameSite: isProd ? 'none' : 'lax',
           maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day - match with config.authentication.refreshTokenExpirationTime
           path: '/',
         });

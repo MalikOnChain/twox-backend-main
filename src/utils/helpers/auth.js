@@ -83,9 +83,11 @@ export const createRefreshToken = async (userId, clientIP) => {
 };
 
 export const setRefreshTokenCookie = (res, refreshToken) => {
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true, // Prevent JavaScript access
-    secure: process.env.NODE_ENV === 'production', // Use HTTPS in production
+    secure: isProd, // Required when sameSite is 'none'
+    sameSite: isProd ? 'none' : 'lax', // Cross-origin frontends (e.g. Vercel → API) need 'none'
     maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day - match with config.authentication.refreshTokenExpirationTime
     path: '/',
   });
