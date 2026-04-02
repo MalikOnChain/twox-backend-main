@@ -23,6 +23,7 @@ import paymentsRoutes from '@/routes/payments/index.routes';
 import fystackWebhookRoutes from '@/routes/webhooks/fystack.routes.js';
 import treasuryRoutes from '@/routes/admin/treasury.routes.js';
 import feeAnalyticsRoutes from '@/routes/admin/fee-analytics.routes.js';
+import userManagementAdminRoutes from '@/routes/admin/user-management.routes.js';
 import blockchainRoutes from '@/routes/blockchain/balance.routes';
 import userRoutes from '@/routes/user/index.routes';
 import utmVisitorRoutes from '@/routes/utm-visitor/index.routes';
@@ -87,6 +88,7 @@ class APIRouter {
     // Admin treasury / fee analytics (stubs + role check on routes)
     this.router.use('/treasury', standardRateLimiter, treasuryRoutes);
     this.router.use('/fee-analytics', standardRateLimiter, feeAnalyticsRoutes);
+    this.router.use('/user-management', standardRateLimiter, userManagementAdminRoutes);
 
     //blockchain
     this.router.use('/blockchain', standardRateLimiter, blockchainRoutes);

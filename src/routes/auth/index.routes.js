@@ -63,7 +63,9 @@ class AuthRouter {
 
       setRefreshTokenCookie(res, refreshToken);
 
-      // Return JWT
+      // Same header as refresh flow so clients can persist token from interceptors or body
+      res.setHeader('x-auth-token', accessToken);
+
       return res.json({
         success: true,
         token: accessToken,
