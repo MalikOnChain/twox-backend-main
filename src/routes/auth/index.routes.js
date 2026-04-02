@@ -47,8 +47,11 @@ class AuthRouter {
 
       // Check if token exists in memory
       if (!searchResult) {
-        res.status(400);
-        return next(new Error('Invalid token'));
+        return res.status(400).json({
+          success: false,
+          error:
+            'Invalid or expired login session. Sign in again. (If this persists across restarts, the API must use a single instance or shared session store for identifiers.)',
+        });
       }
 
       const accessToken = searchResult.accessToken;
