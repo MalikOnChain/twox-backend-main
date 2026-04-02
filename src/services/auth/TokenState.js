@@ -1,8 +1,19 @@
-export const TOKEN_STATE = []; // [{ identifier: String, token: String }]
-// Function to add token to the state
-export const addTokenToState = (identifier, accessToken, refreshToken) =>
-  TOKEN_STATE.push({ identifier, accessToken, refreshToken });
+import AuthTokenExchange from '@/models/auth/AuthTokenExchange.js';
 
-export const getTokenFromState = (identifier) => TOKEN_STATE.find((token) => token.identifier === identifier);
+export async function addTokenToState(identifier, accessToken, refreshToken) {
+  await AuthTokenExchange.create({ identifier, accessToken, refreshToken });
+}
 
-export const removeTokenFromState = (identifier) => TOKEN_STATE.filter((token) => token.identifier !== identifier);
+/**
+ * Atomically load and delete one exchange row (single-use token handoff).
+ * @returns {Promise<{ identifier: string, accessToken: string, refreshToken: string } | null>}
+ */
+export async function takeTokenStateByIdentifier(identifier) {
+  const doc = await AuthTokenExchange.findOneAndDelete({ identifier }).lean();
+  if (!doc) return null;
+  return {
+    identifier: doc.identifier,
+    accessToken: doc.accessToken,
+    refreshToken: doc.refreshToken,
+  };
+}

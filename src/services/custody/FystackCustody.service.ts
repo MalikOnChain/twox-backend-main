@@ -85,9 +85,14 @@ function addressTypeForBlockchain(blockchain: BLOCKCHAIN_PROTOCOL_NAME): Address
 
 /**
  * Ensure the user has a dedicated Fystack MPC wallet for deposits; returns wallet UUID.
+ *
+ * Pass `userDocument` from User `pre('save')` for new users — `findById` cannot see the row until after insert.
  */
-export async function ensureUserFystackDepositWallet(userId: mongoose.Types.ObjectId): Promise<string> {
-  const user = await User.findById(userId);
+export async function ensureUserFystackDepositWallet(
+  userId: mongoose.Types.ObjectId,
+  userDocument?: mongoose.Document | null
+): Promise<string> {
+  const user = userDocument ?? (await User.findById(userId));
   if (!user) throw new Error('User not found');
   const existing = (user as unknown as { fystackDepositWalletId?: string }).fystackDepositWalletId;
   if (existing) {
@@ -115,7 +120,11 @@ export async function ensureUserFystackDepositWallet(userId: mongoose.Types.Obje
   if (!walletId) {
     throw new Error('Fystack createWallet did not return wallet_id');
   }
-  await User.updateOne({ _id: userId }, { $set: { fystackDepositWalletId: walletId } });
+  if (user.isNew) {
+    user.set('fystackDepositWalletId', walletId);
+  } else {
+    await User.updateOne({ _id: userId }, { $set: { fystackDepositWalletId: walletId } });
+  }
   // #region agent log
   paymentDebugTrace({
     flow: 'fystack_wallet',
@@ -138,13 +147,14 @@ export interface GeneratedDepositAddress {
 export async function fetchFystackDepositAddress(
   userId: mongoose.Types.ObjectId,
   blockchain: BLOCKCHAIN_PROTOCOL_NAME,
-  network: NETWORK
+  network: NETWORK,
+  userDocument?: mongoose.Document | null
 ): Promise<GeneratedDepositAddress> {
   const addressType = addressTypeForBlockchain(blockchain);
   if (!addressType) {
     throw new Error(`Fystack deposit address not supported for blockchain: ${blockchain}`);
   }
-  const walletId = await ensureUserFystackDepositWallet(userId);
+  const walletId = await ensureUserFystackDepositWallet(userId, userDocument);
   const sdk = getFystackSdk();
   const data = (await sdk.getDepositAddress(walletId, addressType)) as { address?: string };
   if (!data?.address) {

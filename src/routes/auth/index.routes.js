@@ -3,7 +3,7 @@ import { check } from 'express-validator';
 
 import AdminPanelAuthController from '@/controllers/auth/AdminPanelAuth.controller';
 import { handleValidationErrors } from '@/middleware/validation-error';
-import { TOKEN_STATE } from '@/services/auth/TokenState';
+import { takeTokenStateByIdentifier } from '@/services/auth/TokenState';
 import { setRefreshTokenCookie } from '@/utils/helpers/auth.js';
 
 import { requireAuth } from '../../middleware/auth.js';
@@ -42,24 +42,18 @@ class AuthRouter {
     const { identifier } = req.body;
 
     try {
-      // Search for state
-      const searchResult = TOKEN_STATE.find((el) => el.identifier === identifier);
+      const searchResult = await takeTokenStateByIdentifier(identifier);
 
-      // Check if token exists in memory
       if (!searchResult) {
         return res.status(400).json({
           success: false,
           error:
-            'Invalid or expired login session. Sign in again. (If this persists across restarts, the API must use a single instance or shared session store for identifiers.)',
+            'Invalid or expired login session. Sign in again.',
         });
       }
 
       const accessToken = searchResult.accessToken;
       const refreshToken = searchResult.refreshToken;
-
-      // Remove from state
-      const searchIndex = TOKEN_STATE.findIndex((el) => el.identifier === identifier);
-      TOKEN_STATE.splice(searchIndex, 1);
 
       setRefreshTokenCookie(res, refreshToken);
 

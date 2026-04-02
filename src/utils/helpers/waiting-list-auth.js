@@ -38,7 +38,7 @@ export const generateWaitingListIdentifier = async (waitingListUser, clientIP, u
   const accessToken = await createWaitingListJWTToken(waitingListUser.id, clientIP);
   const refreshToken = await createWaitingListRefreshToken(waitingListUser.id, clientIP);
   const identifier = uuidv4(); // Generate a unique identifier for the token session
-  addTokenToState(identifier, accessToken, refreshToken); // Store the token in your session/state
+  await addTokenToState(identifier, accessToken, refreshToken);
   return identifier;
 };
 

@@ -95,7 +95,9 @@ const createBlockchainAddress = async (
   userId: mongoose.Types.ObjectId,
   blockchain: BLOCKCHAIN_PROTOCOL_NAME,
   testMode: boolean = false,
-  provisioningMode: DepositAddressProvisioningMode = 'auto'
+  provisioningMode: DepositAddressProvisioningMode = 'auto',
+  /** New user doc during User `pre('save')` — Fystack must not `findById` before insert */
+  userDocument?: mongoose.Document | null
 ): Promise<any> => {
   const network = getNetworkForBlockchain(blockchain);
 
@@ -124,7 +126,7 @@ const createBlockchainAddress = async (
     address = generateRandomAddress();
     label = `${userId}`;
   } else if (isFystackConfigured() && listFystackDepositBlockchains().includes(blockchain)) {
-    const res = await fetchFystackDepositAddress(userId, blockchain, network);
+    const res = await fetchFystackDepositAddress(userId, blockchain, network, userDocument);
     address = res.address;
     label = res.label;
     walletType = 'fystack';
@@ -165,7 +167,13 @@ const createDepositAddressMiddleware = async function (this: any, next: (error?:
 
     for (const blockchain of blockchainsToProvision) {
       try {
-        const address = await createBlockchainAddress(this._id, blockchain, useMockDepositAddresses, 'auto');
+        const address = await createBlockchainAddress(
+          this._id,
+          blockchain,
+          useMockDepositAddresses,
+          'auto',
+          this
+        );
         createdAddresses.push(address);
       } catch (error) {
         console.error(`Failed to create ${blockchain} address:`, error);

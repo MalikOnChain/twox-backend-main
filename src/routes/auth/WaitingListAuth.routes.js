@@ -4,7 +4,7 @@ import { check } from 'express-validator';
 import { handleValidationErrors } from '@/middleware/validation-error';
 import WaitingListAuthController from '@/controllers/auth/WaitingListAuth.controller';
 import WaitingListOAuthController from '@/controllers/auth/WaitingListOAuth.controller';
-import { TOKEN_STATE } from '@/services/auth/TokenState';
+import { takeTokenStateByIdentifier } from '@/services/auth/TokenState';
 import { setRefreshTokenCookie } from '@/utils/helpers/auth.js';
 
 class WaitingListAuthRouter {
@@ -44,10 +44,8 @@ class WaitingListAuthRouter {
     const { identifier } = req.body;
 
     try {
-      // Search for state
-      const searchResult = TOKEN_STATE.find((el) => el.identifier === identifier);
+      const searchResult = await takeTokenStateByIdentifier(identifier);
 
-      // Check if token exists in memory
       if (!searchResult) {
         res.status(400);
         return next(new Error('Invalid token'));
@@ -55,10 +53,6 @@ class WaitingListAuthRouter {
 
       const accessToken = searchResult.accessToken;
       const refreshToken = searchResult.refreshToken;
-
-      // Remove from state
-      const searchIndex = TOKEN_STATE.findIndex((el) => el.identifier === identifier);
-      TOKEN_STATE.splice(searchIndex, 1);
 
       setRefreshTokenCookie(res, refreshToken);
 

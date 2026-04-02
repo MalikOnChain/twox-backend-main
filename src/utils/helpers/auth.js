@@ -97,7 +97,7 @@ export const generateIdentifier = async (user, clientIP, userAgent) => {
   const accessToken = await createJWTToken(user.id, clientIP);
   const refreshToken = await createRefreshToken(user.id, clientIP);
   const identifier = uuidv4(); // Generate a unique identifier for the token session
-  addTokenToState(identifier, accessToken, refreshToken); // Store the token in your session/state
+  await addTokenToState(identifier, accessToken, refreshToken);
   await userService.recordLogin(user.id, clientIP, userAgent);
   return identifier;
 };
