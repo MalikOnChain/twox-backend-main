@@ -170,6 +170,26 @@ class ServerInitializer {
         throw new Error('Configuration validation failed. Please check the errors above.');
       }
 
+      // Bind HTTP before Mongo/services so PaaS (e.g. Render) sees an open port quickly.
+      // Render times out deploys if nothing listens on $PORT while Mongo retries.
+      this.setupHttpServer();
+
+      await new Promise((resolve, reject) => {
+        const onListenError = (err) => {
+          this.server.off('error', onListenError);
+          reject(err);
+        };
+        this.server.once('error', onListenError);
+        this.server.listen(this.PORT, '0.0.0.0', () => {
+          this.server.off('error', onListenError);
+          resolve(undefined);
+        });
+      });
+
+      logger.info(
+        colors.green(`✅ Server listening on port ${this.PORT} (Production: ${this.IS_PRODUCTION})`)
+      );
+
       try {
         await this.connectToDatabase();
       } catch (error) {
@@ -204,27 +224,11 @@ class ServerInitializer {
         }
       }
 
-      this.setupHttpServer();
+      await this.setupWebSocketServer();
+      scheduleLiquidityReconciliation();
+      await this.testHealth();
 
-      return new Promise((resolve, reject) => {
-        this.server.listen(this.PORT, '0.0.0.0', async () => {
-          try {
-            logger.info(colors.green(`✅ Server listening on port ${this.PORT} (Production: ${this.IS_PRODUCTION})`));
-            await this.setupWebSocketServer();
-            scheduleLiquidityReconciliation();
-            await this.testHealth();
-            resolve(this.server);
-          } catch (error) {
-            logger.error('Failed to complete server startup:', error);
-            reject(error);
-          }
-        });
-
-        this.server.on('error', (error) => {
-          logger.error('Server error:', error);
-          reject(error);
-        });
-      });
+      return this.server;
     } catch (error) {
       logger.error(colors.red(`❌ Server startup failed: ${error.message}`));
       await this.gracefulShutdown(1);
