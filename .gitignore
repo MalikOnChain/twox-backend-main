@@ -9,6 +9,8 @@
 /coverage
 
 .env*
+!.env.example
+!.env.ci.example
 # production
 /build
 

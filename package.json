@@ -25,6 +25,8 @@
     "build": "tsc",
     "type-check": "tsc --noEmit",
     "verify": "npm run type-check && npm run build",
+    "ci": "npm run verify",
+    "ci:integration": "start-server-and-test start http://127.0.0.1:5000/api node scripts/assert-api-smoke.mjs",
     "postinstall": "node scripts/prune-ethers-src.mjs",
     "fystack:print-assets": "tsx src/scripts/print-fystack-wallet-assets.ts",
     "fystack:refresh-assets": "tsx src/scripts/print-fystack-wallet-assets.ts",
@@ -135,6 +137,7 @@
     "lint-staged": "^12.5.0",
     "prettier": "^3.6.2",
     "socket.io-client": "^4.8.1",
+    "start-server-and-test": "^2.1.5",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.19.4",
     "typescript": "5.9.2"
