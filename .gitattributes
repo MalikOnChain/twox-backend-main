@@ -1,0 +1,3 @@
+# Prevent npm ci failures on Linux when lockfile was committed with Windows CRLF
+package.json text eol=lf
+package-lock.json text eol=lf
