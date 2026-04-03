@@ -47,7 +47,7 @@
     "@coinbase/coinbase-sdk": "^0.13.0",
     "@faker-js/faker": "^9.3.0",
     "@fystack/sdk": "^0.1.14",
-    "@getbrevo/brevo": "^3.0.1",
+    "@getbrevo/brevo": "^5.0.3",
     "@sendgrid/mail": "^8.1.4",
     "@solana/web3.js": "^1.98.0",
     "agenda": "^5.0.0",
