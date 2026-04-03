@@ -3,7 +3,12 @@ updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 15
+      interval: monthly
+    open-pull-requests-limit: 5
     labels:
       - dependencies
+    # Major bumps (e.g. TS 6, uuid 13) usually need intentional work; CI will keep failing until then.
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
