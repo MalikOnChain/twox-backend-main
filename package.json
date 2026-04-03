@@ -107,7 +107,7 @@
     "utf-8-validate": "^5.0.10",
     "uuid": "^9.0.1",
     "wallet-address-validator": "^0.2.4",
-    "winston": "^3.17.0",
+    "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
