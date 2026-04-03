@@ -101,7 +101,7 @@
     "socket.io": "^4.7.4",
     "speakeasy": "^2.0.0",
     "tweetnacl": "^1.0.3",
-    "twilio": "^4.22.0",
+    "twilio": "^5.13.1",
     "utf-8-validate": "^5.0.10",
     "uuid": "^9.0.1",
     "wallet-address-validator": "^0.2.4",
