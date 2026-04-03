@@ -24,6 +24,8 @@
     "test:coverage": "jest --coverage",
     "build": "tsc",
     "type-check": "tsc --noEmit",
+    "verify": "npm run type-check && npm run build",
+    "postinstall": "node scripts/prune-ethers-src.mjs",
     "fystack:print-assets": "tsx src/scripts/print-fystack-wallet-assets.ts",
     "fystack:refresh-assets": "tsx src/scripts/print-fystack-wallet-assets.ts",
     "loadtest:k6:smoke": "k6 run load-tests/k6/smoke.js",
@@ -67,7 +69,7 @@
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.7",
     "eosjs": "^22.1.0",
-    "ethers": "^6.11.1",
+    "ethers": "^6.16.0",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
     "express-useragent": "^1.0.15",
@@ -134,7 +136,8 @@
     "prettier": "^3.6.2",
     "socket.io-client": "^4.8.1",
     "tsconfig-paths": "^4.2.0",
-    "tsx": "^4.19.4"
+    "tsx": "^4.19.4",
+    "typescript": "5.9.2"
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": [

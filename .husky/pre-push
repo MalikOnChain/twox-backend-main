@@ -1,0 +1,5 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Same checks as GitHub Actions (blocks push if verify fails).
+npm run verify

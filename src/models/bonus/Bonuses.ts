@@ -226,8 +226,7 @@ BonusSchema.index({ type: 1, status: 1 });
 BonusSchema.index({ validFrom: 1, validTo: 1 });
 BonusSchema.index({ status: 1, isVisible: 1, priority: -1 });
 BonusSchema.index({ status: 1, isVisible: 1 });
-BonusSchema.index({ validFrom: 1, validTo: 1 });
-BonusSchema.index({ code: 1 }, { unique: true, sparse: true });
+// `code` uses unique+sparse on the path — no separate index here (avoids duplicate index warning).
 
 // Virtual for checking if bonus is expired
 BonusSchema.virtual('isExpired').get(function () {

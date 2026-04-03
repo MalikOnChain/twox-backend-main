@@ -106,15 +106,11 @@ const UserBonusBalanceSchema = new mongoose.Schema<IUserBonusBalance>(
   }
 );
 
-// Indexes for performance
+// Indexes for performance (single block — duplicate schema.index() calls trigger Mongoose warnings)
 UserBonusBalanceSchema.index({ userId: 1, status: 1 });
 UserBonusBalanceSchema.index({ userId: 1, bonusId: 1 }, { unique: true });
 UserBonusBalanceSchema.index({ status: 1, expiresAt: 1 });
 UserBonusBalanceSchema.index({ claimedAt: -1 });
-
-// Add indexes for common queries
-UserBonusBalanceSchema.index({ userId: 1, bonusId: 1 });
-UserBonusBalanceSchema.index({ userId: 1, status: 1 });
 UserBonusBalanceSchema.index({ bonusId: 1, status: 1 });
 UserBonusBalanceSchema.index({ claimedAt: 1 });
 

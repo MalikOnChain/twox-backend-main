@@ -9,6 +9,7 @@
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "allowJs": true,
+    "skipLibCheck": true,
     "declaration": true,
     "baseUrl": ".",
     "paths": {
