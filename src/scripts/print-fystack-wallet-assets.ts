@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- CLI script */
 /**
  * Lists Fystack wallet assets for FYSTACK_HOT_WALLET_ID using only API key + secret.
  * Use the printed `asset_id` values to build FYSTACK_WITHDRAW_ASSET_MAP (no workspace ID needed for this call).
@@ -6,15 +7,25 @@
  * Re-fetch after you add tokens or hit refresh in the Fystack UI. The public API has no
  * wallet-wide rescan, only POST /networks/rescan-transaction (per tx hash + network).
  */
-import { Environment, FystackSDK } from '@fystack/sdk';
-import dotenv from 'dotenv';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
+
+import { Environment, FystackSDK } from '@fystack/sdk';
+import dotenv from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 dotenv.config({ path: resolve(__dirname, '../../.env') });
+
+const FYSTACK_ENTERPRISE_SANDBOX_DOMAIN = 'api.enterprise-sandbox.fystack.io';
+
+function resolveFystackDomain(environment: Environment): string | undefined {
+  const override = process.env.FYSTACK_API_DOMAIN?.trim();
+  if (override) return override;
+  if (environment === Environment.Sandbox) return FYSTACK_ENTERPRISE_SANDBOX_DOMAIN;
+  return undefined;
+}
 
 async function main(): Promise<void> {
   const apiKey = process.env.FYSTACK_API_KEY;
@@ -22,9 +33,7 @@ async function main(): Promise<void> {
   const walletId = process.env.FYSTACK_HOT_WALLET_ID;
 
   if (!apiKey || !apiSecret || !walletId) {
-    console.error(
-      'Missing env: FYSTACK_API_KEY, FYSTACK_API_SECRET, and FYSTACK_HOT_WALLET_ID (see .env.example).'
-    );
+    console.error('Missing env: FYSTACK_API_KEY, FYSTACK_API_SECRET, and FYSTACK_HOT_WALLET_ID (see .env.example).');
     process.exit(1);
   }
 
@@ -40,7 +49,7 @@ async function main(): Promise<void> {
   const sdk = new FystackSDK({
     credentials: { apiKey, apiSecret },
     environment: env,
-    domain: process.env.FYSTACK_API_DOMAIN || undefined,
+    domain: resolveFystackDomain(env),
     debug: process.env.FYSTACK_DEBUG === 'true',
   });
 

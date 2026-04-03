@@ -1,21 +1,27 @@
-import {
-  AddressType,
-  Environment,
-  FystackSDK,
-  WalletPurpose,
-  WalletType,
-} from '@fystack/sdk';
+import { AddressType, Environment, FystackSDK, WalletPurpose, WalletType } from '@fystack/sdk';
 import mongoose from 'mongoose';
 
 import User from '@/models/users/User';
+import { BLOCKCHAIN_PROTOCOL_NAME, NETWORK } from '@/types/vaultody/vaultody';
 import { logger } from '@/utils/logger';
 import { paymentDebugTrace } from '@/utils/paymentDebugTrace';
-import { BLOCKCHAIN_PROTOCOL_NAME, NETWORK } from '@/types/vaultody/vaultody';
 
 let sdkSingleton: FystackSDK | null = null;
 
+/** Enterprise sandbox API host (Fystack: pass in SDK constructor with Environment.Sandbox). */
+const FYSTACK_ENTERPRISE_SANDBOX_DOMAIN = 'api.enterprise-sandbox.fystack.io';
+
 export function isFystackConfigured(): boolean {
   return Boolean(process.env.FYSTACK_API_KEY && process.env.FYSTACK_API_SECRET && process.env.FYSTACK_WORKSPACE_ID);
+}
+
+function resolveFystackSdkDomain(environment: Environment): string | undefined {
+  const override = process.env.FYSTACK_API_DOMAIN?.trim();
+  if (override) return override;
+  if (environment === Environment.Sandbox) {
+    return FYSTACK_ENTERPRISE_SANDBOX_DOMAIN;
+  }
+  return undefined;
 }
 
 export function getFystackSdk(): FystackSDK {
@@ -38,7 +44,7 @@ export function getFystackSdk(): FystackSDK {
       },
       workspaceId: process.env.FYSTACK_WORKSPACE_ID as string,
       environment: env,
-      domain: process.env.FYSTACK_API_DOMAIN || undefined,
+      domain: resolveFystackSdkDomain(env),
       debug: process.env.FYSTACK_DEBUG === 'true',
     });
   }
@@ -50,7 +56,10 @@ const DEFAULT_FYSTACK_DEPOSIT_BLOCKCHAINS = 'ethereum,tron,binance-smart-chain';
 
 function depositBlockchains(): BLOCKCHAIN_PROTOCOL_NAME[] {
   const raw = process.env.FYSTACK_DEPOSIT_BLOCKCHAINS || DEFAULT_FYSTACK_DEPOSIT_BLOCKCHAINS;
-  const keys = raw.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+  const keys = raw
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
   const out: BLOCKCHAIN_PROTOCOL_NAME[] = [];
   for (const k of keys) {
     const v = Object.values(BLOCKCHAIN_PROTOCOL_NAME).find((b) => b === k);
@@ -58,11 +67,7 @@ function depositBlockchains(): BLOCKCHAIN_PROTOCOL_NAME[] {
   }
   return out.length
     ? out
-    : [
-        BLOCKCHAIN_PROTOCOL_NAME.ETHEREUM,
-        BLOCKCHAIN_PROTOCOL_NAME.TRON,
-        BLOCKCHAIN_PROTOCOL_NAME.BINANCE_SMART_CHAIN,
-      ];
+    : [BLOCKCHAIN_PROTOCOL_NAME.ETHEREUM, BLOCKCHAIN_PROTOCOL_NAME.TRON, BLOCKCHAIN_PROTOCOL_NAME.BINANCE_SMART_CHAIN];
 }
 
 function addressTypeForBlockchain(blockchain: BLOCKCHAIN_PROTOCOL_NAME): AddressType | null {

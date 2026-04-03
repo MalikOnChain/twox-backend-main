@@ -100,6 +100,14 @@ module.exports = {
   },
   overrides: [
     {
+      files: ['**/*.ts'],
+      parser: '@typescript-eslint/parser',
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+    },
+    {
       files: ['src/tests/**/*.js'],
       rules: {
         'unused-imports/no-unused-vars': 'off',
